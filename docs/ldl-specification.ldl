@@ -1,0 +1,830 @@
+---
+title: LDL Specification
+subtitle: Normative specification of the loclass Document Language
+author: loclass project
+version: 0.1.0
+date: 2026-07-10
+language: en
+revision: 1
+---
+
+chapter
+  LDL Specification
+
+LDL stands for loclass Document Language.
+
+LDL is a semantic markup language for structured documents. It describes the
+logical meaning and organization of document content independently of a
+concrete output format.
+
+A renderer translates an LDL document into an output format such as PDF, HTML,
+DOCX or ODT.
+
+This document is the normative specification of LDL.
+
+section
+  Status of This Specification
+
+This file is the single normative source for the LDL language.
+
+Other documents, including README files, user documentation, generated
+Markdown files and implementation notes, are informative only.
+
+If another document contradicts this specification, this specification takes
+precedence.
+
+The parser, renderer, tests and user documentation MUST conform to this
+specification.
+
+section
+  Normative Language
+
+The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT,
+RECOMMENDED, MAY and OPTIONAL describe normative requirements.
+
+MUST and MUST NOT define mandatory language rules.
+
+SHOULD and SHOULD NOT define recommended behavior. An implementation may
+deviate only when there is a justified reason.
+
+MAY and OPTIONAL define permitted but non-mandatory behavior.
+
+section
+  Design Principles
+
+LDL describes meaning rather than appearance.
+
+LDL documents SHOULD remain readable as plain text.
+
+Document content and document presentation MUST remain separate.
+
+LDL MUST remain independent of a specific renderer or output format.
+
+Language constructs SHOULD be explicit, predictable and easy to parse.
+
+An LDL document has exactly one manifest.
+
+Included LDL files contain document content only and MUST NOT contain a
+manifest.
+
+section
+  Document Model
+
+An LDL document consists of:
+
+list
+  params
+    type: ordered
+
+  body
+    ---
+    exactly one root document
+    exactly one manifest
+    zero or more document elements
+    zero or more included content files
+    ---
+
+The root document is the file from which processing starts.
+
+The root document owns the manifest.
+
+Included files contribute document elements to the root document. They do not
+form independent LDL documents.
+
+The logical result of resolving all input directives is one document with one
+manifest and one ordered sequence of document elements.
+
+chapter
+  Manifest
+
+section
+  Purpose
+
+The manifest contains metadata and document-level configuration.
+
+The manifest belongs to the complete LDL document, not to individual sections
+or included files.
+
+An LDL document MUST contain exactly one manifest.
+
+section
+  Position
+
+The manifest MUST appear at the beginning of the root document.
+
+The opening delimiter MUST be the first non-empty line of the root document.
+
+No document content or directive may appear before the manifest.
+
+An included file MUST NOT contain a manifest.
+
+section
+  Delimiters
+
+A manifest begins with a line containing exactly three hyphen characters.
+
+A manifest ends with another line containing exactly three hyphen characters.
+
+Leading or trailing whitespace around a delimiter SHOULD NOT be used.
+
+code
+  params
+    caption: Minimal manifest
+    language: ldl
+
+  body
+    ---
+    ---
+    ---
+    ---
+
+The opening and closing delimiters are not part of the manifest data.
+
+section
+  Field Syntax
+
+Each manifest field consists of a field name, a colon and a scalar value.
+
+code
+  params
+    caption: Manifest field syntax
+    language: ldl
+
+  body
+    ---
+    field-name: value
+    ---
+
+Field names are case-sensitive.
+
+Whitespace before and after the field name is ignored.
+
+Whitespace before and after the value is ignored.
+
+The first colon separates the field name from the value.
+
+Additional colons are part of the value.
+
+code
+  params
+    caption: Value containing colons
+    language: ldl
+
+  body
+    ---
+    title: Service status: production
+    ---
+
+A manifest line that does not contain a colon is invalid.
+
+section
+  Scalar Values
+
+The initial LDL manifest supports scalar values only.
+
+Nested objects, sequences and multiline values are not part of the initial
+manifest syntax.
+
+An empty value is syntactically valid and represents an unset value.
+
+code
+  params
+    caption: Empty manifest value
+    language: ldl
+
+  body
+    ---
+    subtitle:
+    ---
+
+An implementation MAY warn when a field has an empty value.
+
+section
+  Duplicate Fields
+
+A manifest field MUST NOT occur more than once.
+
+The following manifest is invalid:
+
+code
+  params
+    caption: Invalid duplicate field
+    language: ldl
+
+  body
+    ---
+    ---
+    title: First title
+    title: Second title
+    ---
+    ---
+
+An implementation MUST report a duplicate manifest field as an error.
+
+The later value MUST NOT silently replace the earlier value.
+
+section
+  Unknown Fields
+
+Only fields defined by this specification are valid manifest fields.
+
+An unknown manifest field is an error.
+
+Implementations MUST NOT silently ignore unknown fields.
+
+This rule prevents spelling errors from becoming unnoticed configuration
+errors.
+
+section
+  Defined Fields
+
+The initial LDL manifest defines the following fields:
+
+table
+  params
+    label: tab:manifest-fields
+    caption: Defined manifest fields
+
+  head
+    Field | Required | Meaning
+
+  body
+    title | no | Document title
+    subtitle | no | Document subtitle
+    author | no | Document author
+    company | no | Authoring organization
+    customer | no | Intended customer or recipient
+    language | no | Document language
+    theme | no | Requested presentation theme
+    version | no | Document version
+    revision | no | Document revision
+    date | no | Document date
+
+No individual manifest field is required in the initial LDL specification.
+
+The manifest itself remains mandatory.
+
+section
+  Title
+
+The title field contains the primary document title.
+
+code
+  params
+    caption: Title field
+    language: ldl
+
+  body
+    ---
+    title: LDL Specification
+    ---
+
+A renderer SHOULD use the title as the principal document heading or document
+metadata title.
+
+section
+  Subtitle
+
+The subtitle field contains an optional secondary document title.
+
+code
+  params
+    caption: Subtitle field
+    language: ldl
+
+  body
+    ---
+    subtitle: Normative language reference
+    ---
+
+section
+  Author
+
+The author field identifies the author or responsible editor of the document.
+
+code
+  params
+    caption: Author field
+    language: ldl
+
+  body
+    ---
+    author: Frank Sieger
+    ---
+
+section
+  Company
+
+The company field identifies the organization responsible for creating or
+publishing the document.
+
+code
+  params
+    caption: Company field
+    language: ldl
+
+  body
+    ---
+    company: Example GmbH
+    ---
+
+section
+  Customer
+
+The customer field identifies the intended customer, recipient or commissioning
+organization.
+
+code
+  params
+    caption: Customer field
+    language: ldl
+
+  body
+    ---
+    customer: Example Customer
+    ---
+
+section
+  Language
+
+The language field identifies the primary language of the document.
+
+code
+  params
+    caption: Language field
+    language: ldl
+
+  body
+    ---
+    language: de
+    ---
+
+The initial specification does not prescribe a complete language-tag validation
+scheme.
+
+Implementations SHOULD accept common language identifiers such as de, en or
+de-DE.
+
+section
+  Theme
+
+The theme field identifies the requested presentation theme.
+
+code
+  params
+    caption: Theme field
+    language: ldl
+
+  body
+    ---
+    theme: default
+    ---
+
+A theme controls presentation and MUST NOT change the semantic meaning of the
+document.
+
+The availability and implementation of themes are renderer-specific.
+
+section
+  Version
+
+The version field identifies the document version.
+
+code
+  params
+    caption: Version field
+    language: ldl
+
+  body
+    ---
+    version: 0.1.0
+    ---
+
+The initial specification treats the value as text and does not require
+semantic versioning.
+
+section
+  Revision
+
+The revision field identifies a revision within a document version.
+
+code
+  params
+    caption: Revision field
+    language: ldl
+
+  body
+    ---
+    revision: 1
+    ---
+
+The initial specification treats the value as text.
+
+section
+  Date
+
+The date field identifies the document date.
+
+code
+  params
+    caption: Date field
+    language: ldl
+
+  body
+    ---
+    date: 2026-07-10
+    ---
+
+Dates SHOULD use the ISO 8601 calendar date form YYYY-MM-DD.
+
+The initial specification does not require implementations to reject other
+textual date representations.
+
+section
+  Complete Example
+
+code
+  params
+    caption: Complete initial manifest
+    language: ldl
+
+  body
+    ---
+    ---
+    title: LDL Specification
+    subtitle: Normative language reference
+    author: Frank Sieger
+    company: loclass
+    customer:
+    language: en
+    theme: default
+    version: 0.1.0
+    revision: 1
+    date: 2026-07-10
+    ---
+    ---
+
+section
+  Output Targets
+
+Output formats are identified by user-facing artifact names such as pdf, html,
+docx and odt.
+
+Renderer technologies such as LaTeX, Pandoc or Typst are implementation details
+and MUST NOT be used as output-format names.
+
+A future revision of this specification is expected to define a targets
+manifest field.
+
+The initial manifest syntax supports scalar values only. Therefore, the targets
+field is not yet part of the language.
+
+Implementations MUST NOT introduce a temporary singular target field as a
+substitute.
+
+chapter
+  Diagnostics
+
+section
+  General Rule
+
+Diagnostics are implementation output and are not part of LDL document
+content.
+
+An implementation MUST report invalid LDL input clearly.
+
+User-caused errors SHOULD be reported as structured LDL diagnostics rather than
+raw implementation exceptions.
+
+Internal implementation failures MAY produce a language-specific traceback for
+debugging purposes.
+
+section
+  Diagnostic Format
+
+A human-readable diagnostic SHOULD follow this structure:
+
+code
+  params
+    caption: Structured LDL diagnostic
+    language: text
+
+  body
+    ---
+    [LDL:E001] document.ldl:1:1 Missing manifest.
+    ---
+
+A diagnostic SHOULD contain:
+
+list
+  params
+    type: unordered
+
+  body
+    ---
+    an LDL diagnostic prefix
+    a stable diagnostic code
+    the source file
+    the source line
+    the source column when available
+    a concise explanation
+    an optional corrective hint
+    ---
+
+Diagnostic output SHOULD remain suitable for filtering with standard
+command-line tools.
+
+section
+  Manifest Diagnostics
+
+The initial manifest diagnostics are:
+
+table
+  params
+    label: tab:manifest-diagnostics
+    caption: Manifest diagnostic codes
+
+  head
+    Code | Meaning
+
+  body
+    E001 | Missing manifest
+    E002 | Unterminated manifest
+    E003 | Invalid manifest line
+    E004 | Duplicate manifest field
+    E005 | Unknown manifest field
+    E006 | Manifest in included file
+    E007 | Manifest not at start of root document
+
+Diagnostic codes are part of the implementation contract and SHOULD remain
+stable once published.
+
+chapter
+  Document Structure
+
+section
+  Overview
+
+An LDL document is an ordered sequence of document elements.
+
+Document elements may be:
+
+list
+  params
+    type: unordered
+
+  body
+    ---
+    paragraphs
+    headings
+    input directives
+    block directives
+    ---
+
+The manifest is document metadata and is not part of the document element sequence.
+
+After resolving all input directives, the resulting document contains one manifest and one ordered sequence of document elements.
+
+section
+  Top-Level Elements
+
+A top-level element begins at indentation level zero.
+
+A non-empty line at indentation level zero begins a new document element.
+
+Indented lines belong to the preceding directive when that directive permits nested content.
+
+A parser MUST preserve the order of all document elements.
+
+section
+  Directive Names
+
+A directive begins with its directive name on a line by itself.
+
+Directive names are case-sensitive.
+
+A directive name MUST appear at indentation level zero.
+
+code
+  params
+    caption: Heading directive
+    language: ldl
+
+  body
+    ---
+    section
+      Document Structure
+    ---
+
+The content belonging to a directive is indented relative to the directive name.
+
+section
+  Directive Boundaries
+
+A multiline directive ends before the next non-empty line at indentation level zero.
+
+The next top-level line begins a new document element.
+
+This rule applies regardless of whether the next element is another directive or a paragraph.
+
+code
+  params
+    caption: Directive followed by a paragraph
+    language: ldl
+
+  body
+    ---
+    list
+      params
+        type: unordered
+
+      body
+        ---
+        first item
+        second item
+        ---
+
+    This paragraph is not part of the list.
+    ---
+
+An implementation MUST NOT attach a following top-level paragraph to the preceding directive.
+
+section
+  Single-Value Directives
+
+Some directives consist of a directive name followed by exactly one indented value line.
+
+The initial single-value directives are:
+
+list
+  params
+    type: unordered
+
+  body
+    ---
+    chapter
+    section
+    subsection
+    input
+    ---
+
+code
+  params
+    caption: Single-value directive
+    language: ldl
+
+  body
+    ---
+    section
+      Manifest
+    ---
+
+A single-value directive ends after its value line.
+
+An empty value is invalid unless the directive specification explicitly allows it.
+
+Additional indented lines are not part of the directive.
+
+section
+  Multiline Directives
+
+A multiline directive may contain named sections such as params, head, body or file.
+
+The sections supported by a directive are defined by that directive.
+
+code
+  params
+    caption: Multiline directive
+    language: ldl
+
+  body
+    ---
+    table
+      params
+        caption: Example table
+
+      head
+        Name | Value
+
+      body
+        Alpha | One
+        Beta | Two
+    ---
+
+Section names are indented by two spaces relative to the directive name.
+
+Content inside a section is indented by four spaces relative to the directive name unless the directive defines a different structure.
+
+A directive MUST reject section names that are not defined for that directive.
+
+section
+  Paragraphs
+
+Text that does not begin with a known directive name at indentation level zero is parsed as paragraph content.
+
+A paragraph may contain one or more consecutive text lines.
+
+code
+  params
+    caption: Paragraph
+    language: ldl
+
+  body
+    ---
+    This is a paragraph.
+
+    This is another paragraph.
+    ---
+
+A paragraph ends before the next known directive at indentation level zero.
+
+Blank lines inside paragraph content are preserved according to the paragraph and raw-text rules defined later in this specification.
+
+section
+  Unknown Top-Level Names
+
+A top-level line is interpreted as a directive only when its complete content matches a known directive name.
+
+Other top-level text is paragraph content.
+
+code
+  params
+    caption: Text resembling a directive
+    language: ldl
+
+  body
+    ---
+    tables are useful in technical documentation.
+    ---
+
+The word tables does not match the directive name table and therefore remains paragraph content.
+
+An unknown word at the beginning of a paragraph MUST NOT automatically produce an unknown-directive error.
+
+section
+  Indentation
+
+The initial LDL specification uses spaces for indentation.
+
+Tabs MUST NOT be used for structural indentation.
+
+One indentation level consists of two space characters.
+
+The standard indentation levels are:
+
+table
+  params
+    label: tab:indentation-levels
+    caption: Standard indentation levels
+
+  head
+    Level | Spaces | Meaning
+
+  body
+    0 | 0 | Top-level document element
+    1 | 2 | Directive value or section name
+    2 | 4 | Section content or parameter
+    3 | 6 | Directive-specific nested content
+
+Implementations MUST interpret structural indentation consistently.
+
+An implementation SHOULD report inconsistent or unsupported indentation as an error rather than silently guessing the intended structure.
+
+section
+  Blank Lines
+
+Blank lines may separate document elements.
+
+Blank lines between top-level elements are not document elements themselves.
+
+A parser MAY ignore leading and trailing blank lines around top-level elements.
+
+Blank lines inside fenced bodies or raw content may be significant and MUST be handled according to the relevant directive specification.
+
+section
+  Element Order
+
+Document elements remain in source order.
+
+Input resolution replaces an input directive with the ordered elements of the included file.
+
+The relative order of elements before and after an input directive MUST remain unchanged.
+
+code
+  params
+    caption: Element order with input
+    language: ldl
+
+  body
+    ---
+    section
+      Before
+
+    input
+      content/details.ldl
+
+    section
+      After
+    ---
+
+After input resolution, the elements from content/details.ldl appear between the sections Before and After.
