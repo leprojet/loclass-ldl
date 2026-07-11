@@ -31,11 +31,6 @@ class Heading:
 
 
 @dataclass(frozen=True)
-class Raw:
-    text: str
-
-
-@dataclass(frozen=True)
 class List:
     type: str
     items: list[str]
@@ -122,7 +117,7 @@ class Metadata:
     revision: str | None = None
 
 
-Element = Heading | Paragraph | Raw | Input | Table | Image | Code | List | Shell
+Element = Heading | Paragraph | Input | Table | Image | Code | List | Shell
 
 
 @dataclass(frozen=True)

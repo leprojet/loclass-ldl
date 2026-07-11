@@ -2,7 +2,7 @@ from loclass_ldl.model import Document, Heading, Metadata, Paragraph
 from loclass_ldl.parser import parse_document
 
 
-def test_parse_document_with_raw_text():
+def test_parse_document_with_multiline_paragraph():
     source = r"""chapter
   Einführung
 
