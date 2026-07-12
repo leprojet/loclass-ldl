@@ -42,4 +42,5 @@ def _load_document(path: Path, stack: list[Path], is_root: bool) -> Document:
     return Document(
         metadata=document.metadata,
         elements=resolved_elements,
+        package_configurations=document.package_configurations,
     )

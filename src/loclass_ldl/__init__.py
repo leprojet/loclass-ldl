@@ -1,6 +1,7 @@
 from .formatter import format_source
 from .inline import lex_inline
 from .loader import LdlInputError, load_document
+from .manifest import ManifestError
 from .model import (
     Bold,
     Cmd,
@@ -15,6 +16,10 @@ from .model import (
     Keys,
     List,
     Metadata,
+    PackageConfigurations,
+    PackageConfiguration,
+    ManifestValue,
+    ManifestScalar,
     Paragraph,
     Path,
     Shell,
@@ -51,6 +56,11 @@ __all__ = [
     "LdlInputError",
     "List",
     "Metadata",
+    "PackageConfigurations",
+    "PackageConfiguration",
+    "ManifestValue",
+    "ManifestScalar",
+    "ManifestError",
     "PARSERS",
     "Paragraph",
     "Path",

@@ -1,5 +1,7 @@
 from collections.abc import Callable
 
+from .manifest import format_manifest
+
 from .model import (
     Code,
     Document,
@@ -8,7 +10,6 @@ from .model import (
     Image,
     Input,
     List,
-    Metadata,
     Paragraph,
     Shell,
     Table,
@@ -17,19 +18,6 @@ from .parser import parse_document
 
 
 INDENT = "  "
-
-_METADATA_FIELDS = (
-    "title",
-    "subtitle",
-    "author",
-    "version",
-    "date",
-    "company",
-    "customer",
-    "language",
-    "theme",
-    "revision",
-)
 
 
 def _indent_line(line: str, level: int) -> str:
@@ -41,27 +29,6 @@ def _indent_line(line: str, level: int) -> str:
 
 def _indent_lines(lines: list[str], level: int) -> list[str]:
     return [_indent_line(line, level) for line in lines]
-
-
-def _format_metadata(metadata: Metadata) -> str | None:
-    lines = ["---"]
-
-    has_values = False
-
-    for field_name in _METADATA_FIELDS:
-        value = getattr(metadata, field_name)
-
-        if value is None:
-            continue
-
-        lines.append(f"{field_name}: {value}")
-        has_values = True
-
-    if not has_values:
-        return None
-
-    lines.append("---")
-    return "\n".join(lines)
 
 
 def _format_heading(heading: Heading) -> str:
@@ -233,10 +200,13 @@ def _format_element(element: Element) -> str:
 def format_document(document: Document) -> str:
     parts: list[str] = []
 
-    metadata = _format_metadata(document.metadata)
+    manifest = format_manifest(
+        document.metadata,
+        document.package_configurations,
+    )
 
-    if metadata is not None:
-        parts.append(metadata)
+    if manifest is not None:
+        parts.append(manifest)
 
     parts.extend(_format_element(element) for element in document.elements)
 

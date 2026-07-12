@@ -117,6 +117,12 @@ class Metadata:
     revision: str | None = None
 
 
+type ManifestScalar = str | int | float | bool | None
+type ManifestValue = ManifestScalar | list[ManifestValue] | dict[str, ManifestValue]
+type PackageConfiguration = dict[str, ManifestValue]
+type PackageConfigurations = dict[str, PackageConfiguration]
+
+
 Element = Heading | Paragraph | Input | Table | Image | Code | List | Shell
 
 
@@ -124,3 +130,4 @@ Element = Heading | Paragraph | Input | Table | Image | Code | List | Shell
 class Document:
     metadata: Metadata = field(default_factory=Metadata)
     elements: list[Element] = field(default_factory=list)
+    package_configurations: PackageConfigurations = field(default_factory=dict)
