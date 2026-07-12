@@ -1,0 +1,38 @@
+name: Python quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  quality:
+    name: Ruff, Mypy, Pytest and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install Python 3.14
+        run: uv python install 3.14
+
+      - name: Install project environment
+        run: uv sync --python 3.14 --frozen
+
+      - name: Run Ruff linter
+        run: uv run ruff check .
+
+      - name: Check Ruff formatting
+        run: uv run ruff format --check .
+
+      - name: Run Mypy
+        run: uv run mypy src
+
+      - name: Run tests
+        run: uv run pytest
+
+      - name: Build distributions
+        run: uv build
