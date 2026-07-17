@@ -1,7 +1,7 @@
 from .formatter import format_source
 from .inline import lex_inline
 from .loader import LdlInputError, load_document
-from .manifest import ManifestError
+from .manifest import ManifestError, replace_manifest
 from .model import (
     Bold,
     Cmd,
@@ -73,6 +73,7 @@ __all__ = [
     "format_source",
     "lex_inline",
     "load_document",
+    "replace_manifest",
     "parse_code",
     "parse_document",
     "parse_heading",

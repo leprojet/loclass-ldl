@@ -9,7 +9,6 @@ from yaml.resolver import BaseResolver
 from .model import (
     ManifestValue,
     Metadata,
-    PackageConfiguration,
     PackageConfigurations,
 )
 
@@ -330,3 +329,63 @@ def format_manifest(
 
     lines.append("---")
     return "\n".join(lines)
+
+
+def _detect_newline(source: str) -> str:
+    if "\r\n" in source:
+        return "\r\n"
+
+    return "\n"
+
+
+def _body_after_manifest(source: str) -> tuple[bool, str]:
+    """Return whether a manifest exists and the unchanged document body."""
+
+    lines = source.splitlines(keepends=True)
+
+    start = 0
+
+    while start < len(lines) and not lines[start].strip():
+        start += 1
+
+    if start >= len(lines) or lines[start].strip() != "---":
+        return False, source
+
+    for index in range(start + 1, len(lines)):
+        line = lines[index]
+
+        if not line.startswith((" ", "\t")) and line.strip() == "---":
+            return True, "".join(lines[index + 1 :])
+
+    raise ManifestError("Manifest must end with '---'.")
+
+
+def replace_manifest(
+    source: str,
+    metadata: Metadata,
+    package_configurations: PackageConfigurations,
+) -> str:
+    """Replace the root manifest while preserving the LDL body."""
+
+    # Validate an existing manifest before replacing it.
+    parse_manifest(source)
+
+    had_manifest, body = _body_after_manifest(source)
+    manifest = format_manifest(
+        metadata,
+        package_configurations,
+    )
+
+    if manifest is None:
+        return body if had_manifest else source
+
+    newline = _detect_newline(source)
+    manifest = manifest.replace("\n", newline)
+
+    if had_manifest:
+        return manifest + newline + body
+
+    if not source:
+        return manifest + newline
+
+    return manifest + newline + newline + source
