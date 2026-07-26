@@ -10,6 +10,7 @@ from .model import (
     Image,
     Input,
     List,
+    PageBreak,
     Paragraph,
     Shell,
     Table,
@@ -51,6 +52,10 @@ def _format_input(input_: Input) -> str:
             _indent_line(input_.path, 1),
         ]
     )
+
+
+def _format_pagebreak(pagebreak: PageBreak) -> str:
+    return "pagebreak"
 
 
 def _format_table(table: Table) -> str:
@@ -180,6 +185,7 @@ _FORMATTERS: dict[type[object], Formatter] = {
     Heading: lambda value: _format_heading(value),  # type: ignore[arg-type]
     Paragraph: lambda value: _format_paragraph(value),  # type: ignore[arg-type]
     Input: lambda value: _format_input(value),  # type: ignore[arg-type]
+    PageBreak: lambda value: _format_pagebreak(value),  # type: ignore[arg-type]
     Table: lambda value: _format_table(value),  # type: ignore[arg-type]
     Image: lambda value: _format_image(value),  # type: ignore[arg-type]
     Code: lambda value: _format_code(value),  # type: ignore[arg-type]

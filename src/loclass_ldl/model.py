@@ -99,6 +99,11 @@ class Input:
 
 
 @dataclass(frozen=True)
+class PageBreak:
+    pass
+
+
+@dataclass(frozen=True)
 class Paragraph:
     text: str
 
@@ -123,7 +128,7 @@ type PackageConfiguration = dict[str, ManifestValue]
 type PackageConfigurations = dict[str, PackageConfiguration]
 
 
-Element = Heading | Paragraph | Input | Table | Image | Code | List | Shell
+Element = Heading | Paragraph | Input | PageBreak | Table | Image | Code | List | Shell
 
 
 @dataclass(frozen=True)

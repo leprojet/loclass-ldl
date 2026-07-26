@@ -228,5 +228,25 @@ table
     assert format_source(formatted) == formatted
 
 
+def test_formats_pagebreak() -> None:
+    source = """Paragraph before.
+
+
+pagebreak
+
+
+Paragraph after.
+"""
+
+    expected = """Paragraph before.
+
+pagebreak
+
+Paragraph after.
+"""
+
+    assert format_source(source) == expected
+
+
 def test_empty_document_remains_empty() -> None:
     assert format_source("") == ""

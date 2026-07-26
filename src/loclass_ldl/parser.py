@@ -8,6 +8,7 @@ from .model import (
     Paragraph,
     Image,
     Input,
+    PageBreak,
     List,
     Shell,
     Table,
@@ -262,6 +263,17 @@ def parse_input(source: str) -> Input:
     return Input(path=path)
 
 
+def parse_pagebreak(source: str) -> PageBreak:
+    lines = _normalize_lines(source)
+
+    if lines != ["pagebreak"]:
+        raise ValueError(
+            "LDL pagebreak block must contain only 'pagebreak'."
+        )
+
+    return PageBreak()
+
+
 def _directive_name(line: str) -> str:
     return line.strip()
 
@@ -272,6 +284,7 @@ def _split_blocks(source: str) -> list[str]:
         "section",
         "subsection",
         "input",
+        "pagebreak",
         "table",
         "image",
         "code",
@@ -286,6 +299,7 @@ def _split_blocks(source: str) -> list[str]:
     }
 
     single_value_directives = heading_directives | {"input"}
+    parameterless_directives = {"pagebreak"}
 
     lines = [line.rstrip() for line in source.splitlines()]
     blocks: list[str] = []
@@ -304,6 +318,11 @@ def _split_blocks(source: str) -> list[str]:
 
         if is_directive:
             directive = stripped
+
+            if directive in parameterless_directives:
+                blocks.append(line)
+                i += 1
+                continue
 
             if directive in single_value_directives:
                 block = [line]
