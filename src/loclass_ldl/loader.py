@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from .manifest import has_manifest
 from .model import Document, Element, Input
 from .parser import parse_document
 
@@ -22,9 +23,8 @@ def _load_document(path: Path, stack: list[Path], is_root: bool) -> Document:
         raise LdlInputError(f"LDL input file not found: {path}")
 
     source = path.read_text(encoding="utf-8")
-    lines = source.splitlines()
 
-    if not is_root and lines and lines[0].strip() == "---":
+    if not is_root and has_manifest(source):
         raise LdlInputError("Manifest is only allowed in the root LDL document")
 
     document = parse_document(source)
