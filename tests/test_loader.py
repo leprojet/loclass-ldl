@@ -26,7 +26,7 @@ Das ist normaler Text.
     )
 
 
-def test_load_document_with_input(tmp_path):
+def test_load_document_accepts_input_without_manifest(tmp_path):
     main = tmp_path / "main.ldl"
     child = tmp_path / "child.ldl"
 
@@ -96,7 +96,7 @@ def test_load_document_detects_circular_input(tmp_path):
         load_document(a)
 
 
-def test_load_document_rejects_manifest_in_input(tmp_path):
+def test_load_document_rejects_manifest_in_input_first_line(tmp_path):
     main = tmp_path / "main.ldl"
     child = tmp_path / "child.ldl"
 
@@ -109,6 +109,39 @@ def test_load_document_rejects_manifest_in_input(tmp_path):
 
     child.write_text(
         """---
+title: Kinddokument
+---
+
+chapter
+  Darf nicht sein
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        LdlInputError, match="Manifest is only allowed in the root LDL document"
+    ):
+        load_document(main)
+
+
+@pytest.mark.parametrize("leading_blank_lines", [1, 3])
+def test_load_document_rejects_manifest_in_input_after_leading_blank_lines(
+    tmp_path,
+    leading_blank_lines,
+):
+    main = tmp_path / "main.ldl"
+    child = tmp_path / "child.ldl"
+
+    main.write_text(
+        """input
+  child.ldl
+""",
+        encoding="utf-8",
+    )
+
+    child.write_text(
+        "\n" * leading_blank_lines
+        + """---
 title: Kinddokument
 ---
 

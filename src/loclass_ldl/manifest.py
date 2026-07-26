@@ -34,6 +34,26 @@ class ManifestError(ValueError):
     """Raised when an LDL manifest is invalid."""
 
 
+def _manifest_start(lines: list[str]) -> int | None:
+    """Return the manifest delimiter index after optional leading blank lines."""
+
+    start = 0
+
+    while start < len(lines) and not lines[start].strip():
+        start += 1
+
+    if start >= len(lines) or lines[start].strip() != "---":
+        return None
+
+    return start
+
+
+def has_manifest(source: str) -> bool:
+    """Return whether the source starts with an LDL manifest."""
+
+    return _manifest_start(source.splitlines()) is not None
+
+
 class _ManifestLoader(yaml.SafeLoader):
     """Safe YAML loader with unique string mapping keys."""
 
@@ -210,13 +230,9 @@ def parse_manifest(
     """Parse the optional root manifest and return the remaining body."""
 
     lines = source.splitlines()
+    start = _manifest_start(lines)
 
-    start = 0
-
-    while start < len(lines) and not lines[start].strip():
-        start += 1
-
-    if start >= len(lines) or lines[start].strip() != "---":
+    if start is None:
         return Metadata(), {}, source
 
     metadata_values: dict[str, str] = {}
@@ -342,13 +358,9 @@ def _body_after_manifest(source: str) -> tuple[bool, str]:
     """Return whether a manifest exists and the unchanged document body."""
 
     lines = source.splitlines(keepends=True)
+    start = _manifest_start(lines)
 
-    start = 0
-
-    while start < len(lines) and not lines[start].strip():
-        start += 1
-
-    if start >= len(lines) or lines[start].strip() != "---":
+    if start is None:
         return False, source
 
     for index in range(start + 1, len(lines)):
